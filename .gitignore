@@ -1,0 +1,78 @@
+# ================================
+# Environment & Secrets
+# ================================
+.env
+.env.local
+.env.development
+.env.production
+.env.*.local
+
+# ================================
+# Node
+# ================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ================================
+# TypeScript
+# ================================
+dist/
+build/
+*.tsbuildinfo
+
+# ================================
+# Prisma
+# ================================
+# Keep schema.prisma and migrations, ignore generated client if needed
+# (usually you DO commit migrations, so nothing extra here)
+
+
+# ================================
+# Vite / Frontend Build
+# ================================
+frontend/dist/
+frontend/.vite/
+
+# ================================
+# OS & Editor
+# ================================
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ================================
+# Logs
+# ================================
+logs/
+*.log
+
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
