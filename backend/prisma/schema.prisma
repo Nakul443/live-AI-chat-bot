@@ -11,3 +11,31 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// 1. Enum for message sender constraint
+enum SenderRole {
+  USER
+  AI
+}
+
+// 2. Chat / Conversation Session Model
+model Chat {
+  id        Int       @id @default(autoincrement()) // "chatchat ID: INT AUTO INCREMENT"
+  title     String?   @default("New Conversation")  // Chat title (optional seed default)
+  createdAt DateTime  @default(now())               // Track when session started
+  messages  Message[]                               // Relation field for Prisma
+
+  @@map("chats")
+}
+
+// 3. Individual Message Model
+model Message {
+  id        Int        @id @default(autoincrement()) // "message unique ID: INT AUTO INCREMENT"
+  chatId    Int                                      // Foreign key pointing to Chat
+  chat      Chat       @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  sender    SenderRole                               // Restricted to USER or AI
+  content   String     @db.Text                      // Content inside message: string
+  createdAt DateTime   @default(now())               // Created_at: timestamp
+
+  @@map("messages")
+}
