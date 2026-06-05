@@ -72,3 +72,44 @@ export const sendMessage = async (req: Request, res: Response, next: NextFunctio
     next(error);
   }
 };
+
+// GET /api/chat/history/:chatId
+export const getChatHistory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const chatId = Number(req.params.chatId);
+
+    if (isNaN(chatId)) {
+      res.status(400).json({ error: 'chatId parameter is required.' });
+      return;
+    }
+
+    // get chat details along with all its related messages sorted by creation time
+    const chatHistory = await prisma.chat.findUnique({
+      where: { id: chatId },
+      include: {
+        messages: {
+          orderBy: {
+            createdAt: 'asc', // keep conversation continue
+          },
+        },
+      },
+    });
+
+    if (!chatHistory) {
+      res.status(404).json({ error: 'Chat history not found for the provided ID.' });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      chat: {
+        id: chatHistory.id,
+        title: chatHistory.title,
+        createdAt: chatHistory.createdAt,
+      },
+      messages: chatHistory.messages,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
