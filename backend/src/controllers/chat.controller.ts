@@ -1,79 +1,86 @@
 import { type Request, type Response, type NextFunction } from 'express';
 import { prisma } from '../index.js';
 
-// POST /api/chat/start
-// start a new session in the database
-export const startChat = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    const { title } = req.body;
-
-    const newChat = await prisma.chat.create({
-      data: {
-        title: title || 'New Conversation',
-      },
-    });
-
-    res.status(201).json({
-      success: true,
-      message: 'Chat session started successfully',
-      chat: newChat,
-    });
-  } catch (error) {
-    next(error); // Passes any DB errors to your global error handler in index.ts
-  }
-};
-
-// POST /api/chat/message
+// POST /chat/message
+// if session id is provided, continue the conversation
+// else start a new chat
 export const sendMessage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { chatId, content } = req.body;
+    // Destructure to match the take-home spec (flexible message & optional sessionId)
+    const { message, sessionId } = req.body;
+    const content = message; 
 
-    if (!chatId || !content) {
-      res.status(400).json({ error: 'Missing required fields: chatId and content are required.' });
+    if (!content || typeof content !== 'string' || content.trim() === '') {
+      res.status(400).json({ error: 'Validation Error: Message content cannot be empty.' });
       return;
     }
 
-    // verify that the chat session actually exists
-    const chatExists = await prisma.chat.findUnique({
-      where: { id: chatId },
-    });
+    let processedContent = content;
+    if (content.length > 4000) {
+      processedContent = content.substring(0, 4000) + '... [Truncated due to length]';
+    }
 
-    if (!chatExists) {
-      res.status(404).json({ error: 'Chat session not found.' });
-      return;
+    let chatId: number;
+
+    // Identify or dynamically spin up a new session on the fly if sessionId is missing
+    if (sessionId) {
+      chatId = Number(sessionId);
+      if (isNaN(chatId)) {
+        res.status(400).json({ error: 'Validation Error: Invalid sessionId format.' });
+        return;
+      }
+
+      // verify that the chat session actually exists
+      const chatExists = await prisma.chat.findUnique({
+        where: { id: chatId },
+      });
+
+      if (!chatExists) {
+        res.status(404).json({ error: 'Chat session not found.' });
+        return;
+      }
+    } else {
+      // start a fresh chat session automatically if none was provided
+      const newChat = await prisma.chat.create({
+        data: {
+          title: 'New Conversation',
+        },
+      });
+      chatId = newChat.id;
     }
 
     // save the User's incoming message to the database
     const userMessage = await prisma.message.create({
       data: {
         chatId,
-        content,
+        content: processedContent,
         sender: 'USER',
       },
     });
 
     // ai response to be added
+    const mockAiResponse = `Received your message: "${processedContent}". LLM engine integration is next!`;
 
     // save the AI's response to the database
-    // const aiMessage = await prisma.message.create({
-    //   data: {
-    //     chatId,
-    //     content: mockAiResponse,
-    //     sender: 'AI',
-    //   },
-    // });
+    const aiMessage = await prisma.message.create({
+      data: {
+        chatId,
+        content: mockAiResponse,
+        sender: 'AI',
+      },
+    });
 
+    // Return the clean structural payload expected by the Spur assignment spec
     res.status(200).json({
-      success: true,
-      userMessage,
-    //   aiMessage,
+      reply: aiMessage.content,
+      sessionId: chatId.toString(),
     });
   } catch (error) {
     next(error);
   }
 };
 
-// GET /api/chat/history/:chatId
+// GET /chat/history/:chatId
 export const getChatHistory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const chatId = Number(req.params.chatId);

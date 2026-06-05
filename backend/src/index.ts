@@ -2,19 +2,27 @@ import express, { type Request, type Response, type NextFunction } from 'express
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { PrismaClient } from './generated/prisma/client.js';
+import { PrismaPg } from '@prisma/adapter-pg';
+import pg from 'pg';
+// 1. Import your unified chat routes
+import chatRoutes from './routes/chat.routes.js';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Export prisma instance to be reused across services
-// while letting your prisma.config.ts handle the connection under the hood
-export const prisma = new PrismaClient({} as any);
+const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
+
+export const prisma = new PrismaClient({ adapter });
 
 // middleware
 app.use(cors());
-app.use(express.json({ limit: '1mb' })); // Limit payload size to handle very long messages sensibly
+app.use(express.json({ limit: '1mb' })); // limiting payload size to handle very long messages
+
+
+app.use('/chat', chatRoutes);
 
 // routes
 app.get('/health', async (req: Request, res: Response) => {
@@ -44,7 +52,7 @@ const server = app.listen(PORT, () => {
 
 // easy shutdown
 const gracefulShutdown = async () => {
-  console.log('\nShutting down gracefully...');
+  console.log('\nShutting down...');
   server.close(async () => {
     await prisma.$disconnect();
     console.log('Database disconnected. Server stopped.');
