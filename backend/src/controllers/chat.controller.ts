@@ -46,10 +46,15 @@ export const sendMessage = async (req: Request, res: Response, next: NextFunctio
       // Pass along the existing database records to the historical tracker array
       conversationHistory = chatExists.messages;
     } else {
+      // Create a display title from the user's first input message, capped at 30 characters
+      const dynamicTitle = processedContent.length > 15
+        ? processedContent.substring(0, 15) + '...' 
+        : processedContent;
+
       // start a fresh chat session automatically if none was provided
       const newChat = await prisma.chat.create({
         data: {
-          title: 'New Conversation',
+          title: dynamicTitle,
         },
       });
       chatId = newChat.id;
