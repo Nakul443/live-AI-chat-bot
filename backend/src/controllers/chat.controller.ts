@@ -1,5 +1,6 @@
 import { type Request, type Response, type NextFunction } from 'express';
 import { prisma } from '../index.js';
+import { generateAIResponse } from '../services/llm.service.js';
 
 // POST /chat/message
 // if session id is provided, continue the conversation
@@ -21,6 +22,7 @@ export const sendMessage = async (req: Request, res: Response, next: NextFunctio
     }
 
     let chatId: number;
+    let conversationHistory: any[] = [];
 
     // Identify or dynamically spin up a new session on the fly if sessionId is missing
     if (sessionId) {
@@ -33,12 +35,16 @@ export const sendMessage = async (req: Request, res: Response, next: NextFunctio
       // verify that the chat session actually exists
       const chatExists = await prisma.chat.findUnique({
         where: { id: chatId },
+        include: { messages: { orderBy: { createdAt: 'asc' } } }
       });
 
       if (!chatExists) {
         res.status(404).json({ error: 'Chat session not found.' });
         return;
       }
+
+      // Pass along the existing database records to the historical tracker array
+      conversationHistory = chatExists.messages;
     } else {
       // start a fresh chat session automatically if none was provided
       const newChat = await prisma.chat.create({
@@ -59,13 +65,13 @@ export const sendMessage = async (req: Request, res: Response, next: NextFunctio
     });
 
     // ai response to be added
-    const mockAiResponse = `Received your message: "${processedContent}". LLM engine integration is next!`;
+    const aiResponse = await generateAIResponse(conversationHistory, userMessage.content);
 
     // save the AI's response to the database
     const aiMessage = await prisma.message.create({
       data: {
         chatId,
-        content: mockAiResponse,
+        content: aiResponse,
         sender: 'AI',
       },
     });
