@@ -27,7 +27,7 @@ build/
 # ================================
 # Keep schema.prisma and migrations, ignore generated client if needed
 # (usually you DO commit migrations, so nothing extra here)
-
+backend/src/generated/prisma
 
 # ================================
 # Vite / Frontend Build
