@@ -1,6 +1,6 @@
-# Live AI Chat Bot — Spur Assignment
+# Live AI Chat Bot
 
-A mini AI support agent for a live chat widget, built as part of the Spur Founding Full-Stack Engineer take-home assignment.
+A mini AI support agent for a live chat widget
 
 **Live demo:** https://liveaichatbot.vercel.app
 
