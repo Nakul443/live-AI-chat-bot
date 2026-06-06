@@ -81,7 +81,6 @@ export const sendMessage = async (req: Request, res: Response, next: NextFunctio
       },
     });
 
-    // Return the clean structural payload expected by the Spur assignment spec
     res.status(200).json({
       reply: aiMessage.content,
       sessionId: chatId.toString(),

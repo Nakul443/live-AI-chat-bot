@@ -31,7 +31,7 @@ export const generateAIResponse = async (
       model: "gemini-2.5-flash",
       contents: contents,
       config: {
-        systemInstruction: `You are a professional, helpful, and courteous live chat customer support agent for "Spur". 
+        systemInstruction: `You are a professional, helpful, and courteous live chat customer support agent. 
 Your goal is to answer user queries cleanly and efficiently. Keep your answers concise, structured, and realistic for a real-time live chat widget environment.
 
 Use the following grounding knowledge base to answer customer questions accurately:

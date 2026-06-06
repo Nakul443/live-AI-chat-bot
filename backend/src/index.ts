@@ -47,7 +47,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 
 // server start
 const server = app.listen(PORT, () => {
-  console.log(`Spur AI Chat Backend running on http://localhost:${PORT}`);
+  console.log(`AI Chat Backend running on http://localhost:${PORT}`);
 });
 
 // easy shutdown
