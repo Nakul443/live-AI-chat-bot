@@ -1,59 +1,31 @@
 # ================================
-# Environment & Secrets
+# Environment & Secrets (Crucial for Assignment Compliance)
 # ================================
 .env
 .env.local
 .env.development
 .env.production
 .env.*.local
+*.local
 
 # ================================
-# Node
+# Project Dependencies & Build Outputs
 # ================================
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# ================================
-# TypeScript
-# ================================
 dist/
+dist-ssr/
 build/
 *.tsbuildinfo
 
-# ================================
-# Prisma
-# ================================
-# Keep schema.prisma and migrations, ignore generated client if needed
-# (usually you DO commit migrations, so nothing extra here)
-backend/src/generated/prisma
-
-# ================================
-# Vite / Frontend Build
-# ================================
+# Individual subfolder insurance for monorepos
+frontend/node_modules/
 frontend/dist/
 frontend/.vite/
-
-# ================================
-# OS & Editor
-# ================================
-.DS_Store
-Thumbs.db
-.idea/
-.vscode/
-*.swp
-*.swo
 
 # ================================
 # Logs
 # ================================
 logs/
-*.log
-
-
-# Logs
-logs
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -61,18 +33,23 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# ================================
+# Prisma / Database
+# ================================
+# Generates the type-safe client engines locally
+backend/src/generated/prisma/
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# ================================
+# OS & Editor Configurations
+# ================================
 .DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sw?
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
-*.sw?
